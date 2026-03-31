@@ -57,6 +57,31 @@
         const QUESTION_COUNTS = [10, 15, 20, 25, 30, 35, 40];
         const ASSESSMENT_TYPES = ["Formative", "Summative"];
 
+        // Offline Content Engine Logic
+        const OFFLINE_DB = {
+            "Narrative": {
+                text: "The Enchanted Valley of whispers was a place where few dared to go. Legend told of a guardian, a creature made of starlight and ancient moss, that protected the valley's secrets. Young Elara, driven by a desire to save her village from the endless drought, decided to enter the forbidden woods. As she walked, the trees seemed to lean closer, their leaves rustling with warnings. She found a spring at the heart of the valley, but it was blocked by a massive, crystalline stone. Remembering her grandmother's riddle, she realized that the stone would only move for someone with selfless intent. She placed her hands on the cold surface and thought of her parched village, not of the gold promised to the one who found the water. Slowly, the stone pulsed with light and dissolved into mist, allowing the cool, life-giving water to flow once more.",
+                questions: [
+                    { q: "What motivated Elara to enter the enchanted valley?", a: "To save her village from drought", b: "To find gold", c: "To defeat a guardian", d: "To live in the woods", e: "To find starlight", ans: "A", lvl: "C2", tp: "Menganalisis informasi tersurat", ind: "Disajikan teks naratif, siswa dapat menentukan motivasi tokoh utama." },
+                    { q: "How is the story organized?", a: "Chronological sequence", b: "Cause and effect only", c: "Comparison of characters", d: "General to specific", e: "Question and answer", ans: "A", lvl: "C4", tp: "Menganalisis struktur teks", ind: "Disajikan teks naratif, siswa dapat menentukan alur organisasi cerita." },
+                    { q: "What can be inferred about the crystalline stone?", a: "It responds to moral purity", b: "It was made of ice", c: "It was easy to break", d: "It was a dangerous trap", e: "It belonged to Elara", ans: "A", lvl: "C4", tp: "Menyimpulkan makna tersirat", ind: "Disajikan teks naratif, siswa dapat menyimpulkan karakteristik objek ajaib." },
+                    { q: "Which statement is an opinion from the text?", a: "The trees seemed to lean closer", b: "Elara decided to enter the woods", c: "The stone was cold", d: "Elara was driven by desire", e: "The stone dissolved into mist", ans: "A", lvl: "C5", tp: "Mengevaluasi fakta dan opini", ind: "Disajikan kalimat dari teks, siswa dapat membedakan opini penulis." },
+                    { q: "What lesson can be applied to real-world conservation?", a: "Selfless management of resources", b: "Ignoring ancient legends", c: "Collecting gold for profit", d: "Traveling alone is better", e: "Trees are always dangerous", ans: "A", lvl: "C6", tp: "Merefleksikan isi teks", ind: "Disajikan isi teks, siswa dapat mengaitkan nilai moral dengan kehidupan nyata." }
+                ]
+            },
+            "Report": {
+                text: "Artificial Intelligence (AI) refers to the simulation of human intelligence processes by machines, especially computer systems. These processes include learning, reasoning, and self-correction. Specialized applications of AI include expert systems, natural language processing, speech recognition, and machine vision. AI is generally categorized into two types: narrow AI and general AI. Narrow AI is designed for a specific task, such as facial recognition or internet searches. In contrast, general AI would possess the cognitive abilities of a human and could solve any intellectual problem. While narrow AI is currently integrated into daily life through virtual assistants and algorithms, general AI remains a theoretical concept. The rapid development of AI has sparked debates regarding ethics, job displacement, and the future of human-machine interaction.",
+                questions: [
+                    { q: "What does the term 'AI' specifically simulation?", a: "Human intelligence processes", b: "Human physical strength", c: "Animal instincts", d: "Internet hardware", e: "Manual calculations", ans: "A", lvl: "C2", tp: "Menganalisis informasi literal", ind: "Disajikan teks report, siswa dapat mendefinisikan istilah teknis." },
+                    { q: "What is the relationship between the second and third sentences?", a: "Elaboration of specific processes", b: "Contrast of definitions", c: "Contradiction of facts", d: "Introduction of a new topic", e: "Concluding statement", ans: "A", lvl: "C4", tp: "Menganalisis kohesi teks", ind: "Disajikan teks report, siswa dapat menentukan hubungan antar kalimat." },
+                    { q: "What can be concluded about virtual assistants like Siri or Alexa?", a: "They are forms of narrow AI", b: "They are general AI", c: "They have human cognitive limits", d: "They are theoretical concepts", e: "They are expert systems", ans: "A", lvl: "C4", tp: "Menarik kesimpulan logis", ind: "Disajikan contoh nyata, siswa dapat mengklasifikasikan jenis teknologi AI." },
+                    { q: "Why is the mention of 'job displacement' critical to the text?", a: "It highlights a social implication", b: "It proves AI is beneficial", c: "It shows AI is a machine", d: "It defines speech recognition", e: "It is a technical instruction", ans: "A", lvl: "C5", tp: "Mengevaluasi argumen", ind: "Disajikan isu tertentu, siswa dapat menganalisis relevansi informasi." },
+                    { q: "How should humans prepare for the rise of AI technology?", a: "By developing adaptive skills", b: "By stopping all AI research", c: "By relying only on narrow AI", d: "By ignoring machine vision", e: "By replacing machines entirely", ans: "A", lvl: "C6", tp: "Merefleksikan solusi kreatif", ind: "Disajikan fenomena teknologi, siswa dapat merumuskan langkah antisipatif." }
+                ]
+            }
+            // Fallback for other genres
+        };
+
         function App() {
             const [activeView, setActiveView] = useState('generate');
             const [activeTab, setActiveTab] = useState('soal');
@@ -73,88 +98,74 @@
             const [error, setError] = useState(null);
             const [archive, setArchive] = useState([]);
 
-            const apiKey = ""; // API Key injection point
-
-            const generateQuestions = async () => {
-                const systemPrompt = `You are Mentora, a professional English Assessment Architect.
-                TASK: Generate a ${formData.type} English assessment for ${formData.grade}.
-                GENRE: ${formData.genre}. TOTAL QUESTIONS: ${formData.numQuestions}.
-                DEVELOPER: Ms. Neni Ratnasari - SMAN 1 Margaasih.
-                
-                STRICT RULES:
-                1. Write full reading passages (300-450 words, B2/C1 level).
-                2. Every 5 questions follow this sequence: Q1:Literal, Q2:Structural, Q3:Inferential, Q4:Evaluative, Q5:Reflective.
-                3. Exactly 5 options (A-E) per question.
-                4. Each question MUST end with "Answer: [Letter]" for the key extraction.
-                5. DO NOT include the blueprint/table here. Only the passages and questions.
-                6. Use clear headings for passages like === PASSAGE X ===.`;
-
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: `Create the assessment content (passages and questions) for ${formData.numQuestions} items.` }] }],
-                        systemInstruction: { parts: [{ text: systemPrompt }] }
-                    })
-                });
-                const data = await response.json();
-                return data.candidates?.[0]?.content?.parts?.[0]?.text;
-            };
-
-            const generateBlueprint = async (soalContent) => {
-                const systemPrompt = `You are an Indonesian Curriculum Specialist. 
-                TASK: Generate an 8-column professional blueprint (Kisi-Kisi) table in Bahasa Indonesia based on the provided English assessment.
-                COLUMNS: No | Capaian Pembelajaran | Tujuan Pembelajaran | Indikator | Level Kognitif | Bentuk Soal | Tingkat Kesulitan | Kunci Jawaban.
-                
-                STRICT RULES:
-                1. TP and Indikator must be descriptive, formal, and pedagogical. 
-                2. TP must explain the core competency.
-                3. Indikator must use standard language: "Disajikan teks..., peserta didik dapat..."
-                4. Match the exact number of questions provided.
-                5. Return ONLY the Markdown table. No other text.`;
-
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: `Here are the questions: \n${soalContent}\n\nGenerate the 8-column blueprint table in Bahasa Indonesia.` }] }],
-                        systemInstruction: { parts: [{ text: systemPrompt }] }
-                    })
-                });
-                const data = await response.json();
-                return data.candidates?.[0]?.content?.parts?.[0]?.text;
-            };
-
-            const handleGenerate = async () => {
+            const handleGenerate = () => {
                 if (!formData.teacherName || !formData.schoolName) {
                     setError("Identity validation error: 'Nama Guru Penyusun' and 'Nama Sekolah' are required.");
                     return;
                 }
                 setLoading(true);
                 setError(null);
-                setResult(null);
+                
+                // Simulate processing delay for professional feel
+                setTimeout(() => {
+                    try {
+                        const genreData = OFFLINE_DB[formData.genre] || OFFLINE_DB["Report"]; // Default to Report if genre not in small mockup
+                        const numPassages = Math.ceil(formData.numQuestions / 5);
+                        
+                        let fullSoal = "";
+                        let blueprintRows = [];
 
-                try {
-                    const soal = await generateQuestions();
-                    if (!soal) throw new Error("Failed to generate questions.");
-                    
-                    const kisi = await generateBlueprint(soal);
-                    if (!kisi) throw new Error("Failed to generate blueprint.");
+                        for (let p = 1; p <= numPassages; p++) {
+                            fullSoal += `=== PASSAGE ${p} ===\n\n${genreData.text}\n\n`;
+                            
+                            genreData.questions.forEach((qObj, idx) => {
+                                const qNum = (p - 1) * 5 + (idx + 1);
+                                if (qNum > formData.numQuestions) return;
 
-                    const newResult = {
-                        id: Date.now(),
-                        soal: soal,
-                        kisi: kisi,
-                        metadata: { ...formData, date: new Date().toLocaleDateString() }
-                    };
-                    setResult(newResult);
-                    setArchive([newResult, ...archive]);
-                    setActiveTab('soal');
-                } catch (err) {
-                    setError(err.message);
-                } finally {
-                    setLoading(false);
-                }
+                                fullSoal += `Q${qNum}: ${qObj.q}\n`;
+                                fullSoal += `A. ${qObj.a}\n`;
+                                fullSoal += `B. ${qObj.b}\n`;
+                                fullSoal += `C. ${qObj.c}\n`;
+                                fullSoal += `D. ${qObj.d}\n`;
+                                fullSoal += `E. ${qObj.e}\n`;
+                                fullSoal += `Answer: ${qObj.ans}\n\n`;
+
+                                blueprintRows.push({
+                                    no: qNum,
+                                    cp: "Membaca dan Memirsa",
+                                    tp: qObj.tp,
+                                    ind: qObj.ind,
+                                    lvl: qObj.lvl,
+                                    type: "Pilihan Ganda",
+                                    diff: idx > 2 ? "Sulit" : "Sedang",
+                                    key: qObj.ans
+                                });
+                            });
+                        }
+
+                        // Format Blueprint as Markdown-like structure for internal consistency
+                        let kisiMarkdown = "| No | Capaian Pembelajaran | Tujuan Pembelajaran | Indikator | Level Kognitif | Bentuk Soal | Tingkat Kesulitan | Kunci Jawaban |\n";
+                        kisiMarkdown += "|---|---|---|---|---|---|---|---|\n";
+                        blueprintRows.forEach(row => {
+                            kisiMarkdown += `| ${row.no} | ${row.cp} | ${row.tp} | ${row.ind} | ${row.lvl} | ${row.type} | ${row.diff} | ${row.key} |\n`;
+                        });
+
+                        const newResult = {
+                            id: Date.now(),
+                            soal: fullSoal,
+                            kisi: kisiMarkdown,
+                            metadata: { ...formData, date: new Date().toLocaleDateString() }
+                        };
+                        
+                        setResult(newResult);
+                        setArchive([newResult, ...archive]);
+                        setActiveTab('soal');
+                    } catch (err) {
+                        setError("Offline Engine Error: Failed to build structure.");
+                    } finally {
+                        setLoading(false);
+                    }
+                }, 1500);
             };
 
             const downloadDoc = (content, isBlueprint = false) => {
@@ -230,8 +241,8 @@
                         if (!trimmed) return;
                         if (trimmed.startsWith('=== PASSAGE')) {
                             body += `<div class="passage-title">${trimmed.replace(/=/g, '').trim()}</div>`;
-                        } else if (trimmed.match(/^Q\d+:/) || trimmed.match(/^\d+\./)) {
-                            body += `<div class="question-text">${trimmed}</div>`;
+                        } else if (trimmed.match(/^Q\d+:/)) {
+                            body += `<div class="question-text"><b>${trimmed}</b></div>`;
                         } else if (trimmed.match(/^[A-E]\./)) {
                             body += `<div class="option-row">${trimmed}</div>`;
                         } else if (trimmed.startsWith('Answer:')) {
@@ -276,7 +287,7 @@
                                     if (cells.length < headers.length) return null;
                                     return (
                                         <tr key={ri}>
-                                            {cells.map((cell, ci) => <td key={ci}>{cell.trim()}</td>)}
+                                            {cells.map((cell, ci) => <td key={ci} className={([0,4,5,6,7].includes(ci)) ? 'text-center' : ''}>{cell.trim()}</td>)}
                                         </tr>
                                     );
                                 })}
@@ -344,8 +355,8 @@
                                                     </div>
                                                     <div>
                                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Jumlah Soal</label>
-                                                        <select className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl font-bold" value={formData.numQuestions} onChange={e => setFormData({...formData, numQuestions: e.target.value})}>
-                                                            {QUESTION_COUNTS.map(c => <option key={c}>{c}</option>)}
+                                                        <select className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl font-bold" value={formData.numQuestions} onChange={e => setFormData({...formData, numQuestions: parseInt(e.target.value)})}>
+                                                            {QUESTION_COUNTS.map(c => <option key={c} value={c}>{c}</option>)}
                                                         </select>
                                                     </div>
                                                 </div>
@@ -355,9 +366,15 @@
                                                         {GENRES.map(g => <option key={g}>{g}</option>)}
                                                     </select>
                                                 </div>
+                                                <div>
+                                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Tipe Asesmen</label>
+                                                    <select className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl font-bold" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
+                                                        {ASSESSMENT_TYPES.map(t => <option key={t}>{t}</option>)}
+                                                    </select>
+                                                </div>
                                             </div>
-                                            <button onClick={handleGenerate} disabled={loading} className="w-full py-4 bg-indigo-600 text-white rounded-3xl font-black text-lg shadow-xl shadow-indigo-200 hover:bg-indigo-700 active:scale-95 transition-all disabled:opacity-50">
-                                                {loading ? "ARCHITECTING..." : "GENERATE ASSESSMENT"}
+                                            <button onClick={handleGenerate} disabled={loading} className="w-full py-4 bg-indigo-600 text-white rounded-3xl font-black text-lg shadow-xl shadow-indigo-200 hover:bg-indigo-700 active:scale-95 transition-all disabled:opacity-50 uppercase">
+                                                {loading ? "Architecting..." : "Generate Assessment"}
                                             </button>
                                             {error && <p className="text-rose-500 text-[10px] font-bold text-center mt-2">{error}</p>}
                                         </div>
@@ -373,7 +390,7 @@
                                             <div className="h-full min-h-[400px] bg-white rounded-[3rem] border border-slate-200 shadow-sm flex flex-col items-center justify-center space-y-4 text-center p-8">
                                                 <div className="w-16 h-16 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
                                                 <h3 className="font-black text-indigo-900 uppercase tracking-widest animate-pulse">Mentora is Architecting</h3>
-                                                <p className="text-slate-400 text-xs max-w-xs">Generating reading passages and mapping pedagogical standards...</p>
+                                                <p className="text-slate-400 text-xs max-w-xs">Simulating reading passages and pedagogical mapping standards...</p>
                                             </div>
                                         ) : (
                                             <div className="space-y-6">
@@ -429,7 +446,7 @@
                     </main>
 
                     <footer className="fixed bottom-0 left-0 lg:left-64 right-0 p-3 bg-white/90 backdrop-blur-md border-t border-slate-200 z-40 text-center flex flex-col md:flex-row justify-between items-center px-8 gap-2">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Linguistic Assessment Architect | Powered by Gemini 2.5</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Linguistic Assessment Architect | Powered by JavaScript</p>
                         <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">© 2024 Neni Ratnasari - SMAN 1 Margaasih</p>
                     </footer>
                 </div>
